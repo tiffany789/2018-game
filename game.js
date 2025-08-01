@@ -56,15 +56,19 @@ function initGame() {
     scoreElement.textContent = score;
     hasWon = false;
     
-    // Load high score from localStorage
+    // Load game statistics first
+    loadGameStats();
+    
+    // Load high score from localStorage and sync all displays
     const savedHighScore = localStorage.getItem('2048-high-score');
     if (savedHighScore) {
-        highScoreElement.textContent = savedHighScore;
-        gameStats.highScore = parseInt(savedHighScore);
+        const highScore = parseInt(savedHighScore);
+        highScoreElement.textContent = highScore;
+        bestScoreDisplayElement.textContent = highScore;
+        gameStats.highScore = Math.max(gameStats.highScore, highScore);
     }
     
-    // Load game statistics
-    loadGameStats();
+    // Update all displays
     updateHistoryDisplay();
 
     updateBoard();
@@ -229,33 +233,7 @@ function createTile(value, row, col, direction = null) {
         }, 10);
     }
 
-    // Add ultra-smooth merge animation for combined tiles
-    if (merged) {
-        // Use requestAnimationFrame for smooth merge feedback
-        requestAnimationFrame(() => {
-            const mergedTiles = document.querySelectorAll('.tile');
-            mergedTiles.forEach(tile => {
-                const value = parseInt(tile.textContent);
-                if (value > 2) {
-                    // Apply subtle merge effect
-                    tile.style.transition = 'transform 0.06s cubic-bezier(0.23, 1, 0.32, 1)';
-                    tile.style.transform = 'scale(1.03) translateZ(0)';
-                    tile.style.zIndex = '10';
-                    
-                    // Return to normal smoothly
-                    setTimeout(() => {
-                        tile.style.transform = 'scale(1) translateZ(0)';
-                        tile.style.zIndex = '1';
-                    }, 60);
-                    
-                    // Clean up transition
-                    setTimeout(() => {
-                        tile.style.transition = '';
-                    }, 120);
-                }
-            });
-        });
-    }
+
 
     // Add merge animation if value is doubled
     if (value > 2 && value <= 2048) {
@@ -296,27 +274,8 @@ function moveTiles(direction) {
                             merged = true;
                             moved = true;
                             
-                            // Update score display
+                            // Update score display (high score will be updated at end of moveTiles)
                             scoreElement.textContent = score;
-                            
-                            // Update high score if needed
-                            const currentHighScore = parseInt(highScoreElement.textContent) || 0;
-                            if (score > currentHighScore) {
-                                // Update both high score displays
-                                highScoreElement.textContent = score;
-                                bestScoreDisplayElement.textContent = score;
-                                
-                                // Update game stats
-                                gameStats.highScore = score;
-                                localStorage.setItem('2048-high-score', score.toString());
-                                saveGameStats();
-                                
-                                // Add visual feedback
-                                highScoreElement.classList.add('updated');
-                                setTimeout(() => {
-                                    highScoreElement.classList.remove('updated');
-                                }, 500);
-                            }
                         } else {
                             // Move tile to write position
                             if (writePos !== row) {
@@ -417,6 +376,25 @@ function moveTiles(direction) {
         gameBoard = tempBoard;
         updateBoard();
         scoreElement.textContent = score;
+        
+        // Check and update high score after every move
+        const currentHighScore = parseInt(highScoreElement.textContent) || 0;
+        if (score > currentHighScore) {
+            // Update both high score displays
+            highScoreElement.textContent = score;
+            bestScoreDisplayElement.textContent = score;
+            
+            // Update game stats
+            gameStats.highScore = score;
+            localStorage.setItem('2048-high-score', score.toString());
+            saveGameStats();
+            
+            // Add visual feedback
+            highScoreElement.classList.add('updated');
+            setTimeout(() => {
+                highScoreElement.classList.remove('updated');
+            }, 500);
+        }
         
         if (merged) {
             // Add new tile after merge animation
