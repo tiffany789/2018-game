@@ -15,6 +15,13 @@ body {
     padding: 10px;
     box-sizing: border-box;
     overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    touch-action: manipulation;
 }
 
 .container {
@@ -251,8 +258,12 @@ body {
     background: rgba(187, 173, 160, 0.4);
     border-radius: 6px;
     padding: 10px;
-    /* no overflow */
     overflow: hidden;
+    transform: translateZ(0);
+    will-change: auto;
+    contain: layout style paint;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
 }
 
 .grid-row {
@@ -295,12 +306,15 @@ body {
     align-items: center !important;
     text-align: center !important;
     line-height: 97.5px !important;
-    transition: transform 0.15s ease-out;
+    transition: transform 0.08s cubic-bezier(0.23, 1, 0.32, 1);
     will-change: transform;
     backface-visibility: hidden;
     transform-style: preserve-3d;
+    transform: translateZ(0);
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    will-change: transform, opacity;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    contain: layout style paint;
 }
 
 /* Different tile colors */

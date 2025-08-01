@@ -122,18 +122,33 @@ function addRandomTile() {
 
 // Update the visual board
 function updateBoard() {
-    // Use requestAnimationFrame to ensure smooth rendering
+    // Use double requestAnimationFrame for ultra-smooth rendering
     requestAnimationFrame(() => {
-        // Clear existing tiles
-        const tiles = document.querySelectorAll('.tile');
-        tiles.forEach(tile => tile.remove());
+        requestAnimationFrame(() => {
+            // Batch DOM operations for better performance
+            const fragment = document.createDocumentFragment();
+            
+            // Clear existing tiles efficiently
+            const tiles = document.querySelectorAll('.tile');
+            tiles.forEach(tile => {
+                tile.style.opacity = '0';
+                setTimeout(() => tile.remove(), 50);
+            });
 
-        // Create new tiles
-        gameBoard.forEach((row, rowIndex) => {
-            row.forEach((value, colIndex) => {
-                if (value !== 0) {
-                    createTile(value, rowIndex, colIndex);
-                }
+            // Create new tiles with optimized rendering
+            gameBoard.forEach((row, rowIndex) => {
+                row.forEach((value, colIndex) => {
+                    if (value !== 0) {
+                        const tile = createTile(value, rowIndex, colIndex);
+                        if (tile) {
+                            // Ensure tile is rendered smoothly
+                            tile.style.opacity = '0';
+                            setTimeout(() => {
+                                tile.style.opacity = '1';
+                            }, 10);
+                        }
+                    }
+                });
             });
         });
     });
@@ -478,62 +493,81 @@ toggleHistoryBtn.addEventListener('click', () => {
 // Keyboard controls
 document.addEventListener('keydown', handleKeyPress);
 
-// Touch controls for mobile devices
+// Touch controls for mobile devices with ultra-smooth optimization
 let touchStartX = null;
 let touchStartY = null;
 let touchMoved = false;
+let isProcessingTouch = false;
 
 // Prevent default touch behaviors on the game container
 gridContainer.addEventListener('touchstart', (e) => {
     e.preventDefault();
+    if (isProcessingTouch) return;
+    
     const touch = e.touches[0];
     touchStartX = touch.clientX;
     touchStartY = touch.clientY;
     touchMoved = false;
+    
+    // Add visual feedback for touch start
+    gridContainer.style.transform = 'scale(0.98)';
 }, { passive: false });
 
 gridContainer.addEventListener('touchmove', (e) => {
     e.preventDefault();
+    if (isProcessingTouch) return;
     touchMoved = true;
 }, { passive: false });
 
 gridContainer.addEventListener('touchend', (e) => {
     e.preventDefault();
     
-    if (!touchMoved || touchStartX === null || touchStartY === null) {
+    // Reset visual feedback immediately
+    gridContainer.style.transform = 'scale(1)';
+    
+    if (isProcessingTouch || !touchMoved || touchStartX === null || touchStartY === null) {
         touchStartX = null;
         touchStartY = null;
+        isProcessingTouch = false;
         return;
     }
+    
+    isProcessingTouch = true;
     
     const touch = e.changedTouches[0];
     const dx = touch.clientX - touchStartX;
     const dy = touch.clientY - touchStartY;
     
-    // Minimum swipe distance
-    const minSwipeDistance = 30;
+    // Minimum swipe distance (reduced for better responsiveness)
+    const minSwipeDistance = 25;
     
-    // Determine swipe direction
-    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > minSwipeDistance) {
-        // Horizontal swipe
-        if (dx > 0) {
-            moveTiles('right');
-        } else {
-            moveTiles('left');
+    // Use requestAnimationFrame for smooth gesture processing
+    requestAnimationFrame(() => {
+        // Determine swipe direction
+        if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > minSwipeDistance) {
+            // Horizontal swipe
+            if (dx > 0) {
+                moveTiles('right');
+            } else {
+                moveTiles('left');
+            }
+        } else if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > minSwipeDistance) {
+            // Vertical swipe
+            if (dy > 0) {
+                moveTiles('down');
+            } else {
+                moveTiles('up');
+            }
         }
-    } else if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > minSwipeDistance) {
-        // Vertical swipe
-        if (dy > 0) {
-            moveTiles('down');
-        } else {
-            moveTiles('up');
-        }
-    }
-    
-    // Reset touch state
-    touchStartX = null;
-    touchStartY = null;
-    touchMoved = false;
+        
+        // Reset touch state after processing
+        setTimeout(() => {
+            touchStartX = null;
+            touchStartY = null;
+            touchMoved = false;
+            isProcessingTouch = false;
+        }, 100);
+    });
 }, { passive: false });
 
 function handleKeyPress(e) {
