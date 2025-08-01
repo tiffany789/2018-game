@@ -200,74 +200,73 @@ function speakEncouragement() {
             // Enhanced voice parameters based on emotion
             switch (phrase.emotion) {
                 case 'excited':
-                    utterance.pitch = 1.4;       // Higher pitch for excitement
-                    utterance.rate = 1.0;        // Normal rate for clarity
-                    utterance.volume = 1.0;      // Full volume
+                case 'energetic':
+                    utterance.rate = 1.2;
+                    utterance.pitch = 1.3;
+                    utterance.volume = 0.9;
                     break;
                 case 'surprised':
-                    utterance.pitch = 1.5;       // Very high pitch for surprise
-                    utterance.rate = 0.9;        // Slightly slower for emphasis
-                    utterance.volume = 0.95;     // Nearly full volume
-                    break;
-                case 'enthusiastic':
-                    utterance.pitch = 1.3;       // Moderately high pitch
-                    utterance.rate = 1.05;       // Slightly faster
-                    utterance.volume = 1.0;      // Full volume
-                    break;
                 case 'amazed':
-                    utterance.pitch = 1.4;       // High pitch for amazement
-                    utterance.rate = 0.85;       // Slower for dramatic effect
-                    utterance.volume = 1.0;      // Full volume
+                    utterance.rate = 0.9;
+                    utterance.pitch = 1.4;
+                    utterance.volume = 0.8;
+                    break;
+                case 'proud':
+                case 'confident':
+                    utterance.rate = 1.0;
+                    utterance.pitch = 1.1;
+                    utterance.volume = 0.9;
+                    break;
+                case 'encouraging':
+                case 'celebratory':
+                    utterance.rate = 1.1;
+                    utterance.pitch = 1.2;
+                    utterance.volume = 0.8;
                     break;
                 default:
-                    utterance.pitch = 1.2;       // Default slightly higher pitch
-                    utterance.rate = 0.9;        // Slightly slower for clarity
-                    utterance.volume = 0.95;     // Nearly full volume
+                    utterance.rate = 1.0;
+                    utterance.pitch = 1.2;
+                    utterance.volume = 0.8;
             }
             
-            // Use English voice if available (preferably female voice for enthusiasm)
-            const voices = window.speechSynthesis.getVoices();
-            let selectedVoice = null;
-            
-            // Try to find a good English female voice
-            for (const voice of voices) {
-                if (voice.lang.includes('en') && voice.name.includes('Female')) {
-                    selectedVoice = voice;
-                    break;
-                }
-            }
-            
-            // Fallback to any English voice
-            if (!selectedVoice) {
-                const englishVoices = voices.filter(voice => voice.lang.includes('en'));
-                if (englishVoices.length > 0) {
-                    selectedVoice = englishVoices[0];
-                }
-            }
-            
-            if (selectedVoice) {
-                utterance.voice = selectedVoice;
-                console.log(`Using voice: ${selectedVoice.name}`);
-            }
-            
-            // Add pauses between words for more natural speech
-            utterance.text = phrase.text.replace(/ /g, ', ');
-            
-            // Add event listeners for better debugging
-            utterance.onstart = () => console.log('Started speaking encouragement');
-            utterance.onend = () => console.log('Finished speaking encouragement');
-            utterance.onerror = (e) => console.warn('Speech error:', e);
-            
-            // Speak with a slight delay for better timing
-            setTimeout(() => {
+            // Mobile-specific adjustments
+            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                utterance.rate = Math.max(0.8, utterance.rate - 0.2); // Slower on mobile
+                utterance.volume = Math.min(1.0, utterance.volume + 0.1); // Louder on mobile
+                
+                // Force speech synthesis on mobile
+                setTimeout(() => {
+                    try {
+                        window.speechSynthesis.speak(utterance);
+                        console.log('Mobile speech synthesis triggered:', phrase.text);
+                    } catch (e) {
+                        console.warn('Mobile speech synthesis failed:', e);
+                    }
+                }, 100);
+            } else {
+                // Desktop speech synthesis
                 window.speechSynthesis.speak(utterance);
-                console.log(`Speaking encouragement: "${phrase.text}" with ${phrase.emotion} emotion`);
-            }, 200);
+                console.log('Desktop speech synthesis triggered:', phrase.text);
+            }
+            
+            // Add event listeners for debugging
+            utterance.onstart = () => {
+                console.log('Speech started:', phrase.text);
+            };
+            
+            utterance.onend = () => {
+                console.log('Speech ended:', phrase.text);
+            };
+            
+            utterance.onerror = (event) => {
+                console.error('Speech error:', event.error, phrase.text);
+            };
+            
         } else {
-            console.warn('Speech synthesis not supported');
+            console.warn('Speech synthesis not supported in this browser');
         }
     } catch (e) {
-        console.warn('Failed to speak encouragement:', e);
+        console.error('Error in speech synthesis:', e);
     }
 }
 
@@ -377,21 +376,30 @@ function createTile(value, row, col) {
         
         // 动态计算tile位置，确保在所有设备上100%对齐到grid-cell中央
         function getTileDimensions() {
-            // 检测是否为移动端
-            const isMobile = window.innerWidth <= 768;
-            
-            if (isMobile) {
-                // 移动端：使用与CSS相同的计算公式
-                const containerSize = Math.min(window.innerWidth * 0.9, 400);
-                const tileSize = (containerSize - 16) / 5 - 6.4; // 与CSS calc()完全一致
-                const gap = 8;
-                const padding = 8;
+            // 获取实际的grid-cell尺寸
+            const gridCells = document.querySelectorAll('.grid-cell');
+            if (gridCells && gridCells.length > 0) {
+                // 直接使用实际渲染的grid-cell尺寸
+                const cellRect = gridCells[0].getBoundingClientRect();
+                const containerRect = gridContainer.getBoundingClientRect();
                 
-                console.log(`Mobile dimensions: containerSize=${containerSize}, tileSize=${tileSize}`);
-                return { tileSize, gap, padding, isMobile: true };
+                const tileSize = cellRect.width;
+                const gap = 8; // 固定间距
+                const padding = 8; // 固定padding
+                
+                console.log(`Using actual grid-cell dimensions: tileSize=${tileSize}, cellRect:`, cellRect);
+                return { tileSize, gap, padding, isMobile: window.innerWidth <= 768 };
             } else {
-                // 桌面端：使用固定尺寸
-                return { tileSize: 76.8, gap: 8, padding: 8, isMobile: false };
+                // 备用计算方法
+                const isMobile = window.innerWidth <= 768;
+                if (isMobile) {
+                    const containerSize = Math.min(window.innerWidth * 0.9, 400);
+                    const tileSize = (containerSize - 16) / 5 - 6.4;
+                    console.log(`Fallback mobile dimensions: containerSize=${containerSize}, tileSize=${tileSize}`);
+                    return { tileSize, gap: 8, padding: 8, isMobile: true };
+                } else {
+                    return { tileSize: 76.8, gap: 8, padding: 8, isMobile: false };
+                }
             }
         }
         

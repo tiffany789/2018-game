@@ -8,13 +8,16 @@
 </head>
 <body>
     <div class="container">
-        <div class="score-container">
+        <h1>2048</h1>
+        
+        <!-- 移动端顶部区域：分数和按钮横向排列 -->
+        <div class="top-section">
             <div class="scores">
-                <div class="score-box">
+                <div class="score-container">
                     <div class="score-label">SCORE</div>
                     <div class="score">0</div>
                 </div>
-                <div class="score-box">
+                <div class="score-container">
                     <div class="score-label">BEST</div>
                     <div class="high-score">0</div>
                 </div>
@@ -24,6 +27,7 @@
                 <button id="restart-button">New Game</button>
             </div>
         </div>
+        
         <div class="voice-display" id="voice-display"></div>
         <div class="game-container">
             <div class="grid-container">

@@ -434,177 +434,6 @@ body {
 .tile-1024 { background: #edc53f; color: #f9f6f2; font-size: 28px; }
 .tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 28px; }
 
-/* Mobile responsive design - 修复居中和边界问题 */
-@media (max-width: 768px) {
-    body {
-        padding: 10px;
-        align-items: center;
-        justify-content: center;
-        min-height: 100vh;
-        box-sizing: border-box;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .container {
-        max-width: 100%;
-        padding: 15px;
-        margin: 0 auto;
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        box-sizing: border-box;
-    }
-    
-    .header {
-        margin-bottom: 20px;
-        width: 100%;
-        max-width: 450px;
-    }
-    
-    .scores {
-        gap: 10px;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-    
-    .score-box {
-        min-width: 85px;
-        padding: 8px 18px;
-        font-size: 14px;
-    }
-    
-    .score, .high-score {
-        font-size: 20px;
-    }
-    
-    .controls {
-        gap: 15px;
-        margin-top: 15px;
-        justify-content: center;
-    }
-    
-    .game-container {
-        width: min(90vw, 400px);
-        height: min(90vw, 400px);
-        margin: 15px auto;
-        overflow: hidden;
-        position: relative;
-        box-sizing: border-box;
-        /* 确保容器尺寸精确且防止超出 */
-    }
-    
-    .grid-container {
-        width: 100%;
-        height: 100%;
-        padding: 8px;
-        box-sizing: border-box;
-        position: relative;
-        overflow: hidden;
-        /* 防止tile超出边界 */
-    }
-    
-    .grid-row {
-        height: calc((min(90vw, 400px) - 16px) / 5 - 6.4px);
-        /* 精确计算：容器尺寸 - padding*2 - 间距 */
-    }
-    
-    .grid-row:not(:last-child) {
-        margin-bottom: 8px;
-    }
-    
-    .grid-cell {
-        width: calc((min(90vw, 400px) - 16px) / 5 - 6.4px);
-        height: calc((min(90vw, 400px) - 16px) / 5 - 6.4px);
-        border-radius: 6px;
-        /* 精确计算以防止超出边界 */
-    }
-    
-    .grid-cell:not(:last-child) {
-        margin-right: 8px;
-    }
-    
-    .tile {
-        width: calc((min(90vw, 400px) - 16px) / 5 - 6.4px) !important;
-        height: calc((min(90vw, 400px) - 16px) / 5 - 6.4px) !important;
-        font-size: calc(min(90vw, 400px) / 16) !important;
-        line-height: 1 !important;
-        max-width: 100% !important;
-        max-height: 100% !important;
-        border-radius: 6px !important;
-        z-index: 10 !important;
-        /* 确保 tile 不会超出边界 */
-    }
-    
-    .tile-128, .tile-256, .tile-512 {
-        font-size: calc(min(85vw, 432px) / 17) !important;
-    }
-    
-    .tile-1024, .tile-2048 {
-        font-size: calc(min(85vw, 432px) / 19) !important;
-    }
-    
-    #restart-button, #audio-toggle {
-        padding: 10px 16px;
-        font-size: 16px;
-        min-height: 44px;
-        /* 保持与桌面端相同的按钮尺寸 */
-    }
-}
-
-/* Additional mobile optimizations for very small screens */
-@media (max-width: 360px) {
-    .container {
-        padding: 15px;
-    }
-    
-    .game-container {
-        width: min(90vw, 360px);
-        height: min(90vw, 360px);
-        /* 保持与主要移动端样式一致的比例 */
-    }
-    
-    .score-box {
-        min-width: 75px;
-        padding: 6px 14px;
-    }
-    
-    .score-label {
-        font-size: 13px;
-    }
-    
-    .score, .high-score {
-        font-size: 18px;
-    }
-    
-    #restart-button, #audio-toggle {
-        padding: 8px 14px;
-        font-size: 15px;
-        min-height: 42px;
-    }
-}
-
-.tile:hover {
-    transform: scale(1.01);
-    transition: all 0.05s ease-out;
-}
-
-/* Tile colors */
-.tile-2 { background: #eee4da; color: #776e65; }
-.tile-4 { background: #ede0c8; color: #776e65; }
-.tile-8 { background: #f2b179; color: #f9f6f2; }
-.tile-16 { background: #f59563; color: #f9f6f2; }
-.tile-32 { background: #f67c5f; color: #f9f6f2; }
-.tile-64 { background: #f65e3b; color: #f9f6f2; }
-.tile-128 { background: #edcf72; color: #f9f6f2; }
-.tile-256 { background: #edcc61; color: #f9f6f2; }
-.tile-512 { background: #edc850; color: #f9f6f2; }
-.tile-1024 { background: #edc53f; color: #f9f6f2; }
-.tile-2048 { background: #edc22e; color: #f9f6f2; }
-
 /* Ultra-smooth animation classes */
 .tile.appear {
     opacity: 0;
@@ -666,3 +495,198 @@ body {
 .tile.merge {
     animation: merge-in 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
 }
+
+/* Mobile responsive design - 修复居中和边界问题 */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        box-sizing: border-box;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .container {
+        max-width: 100%;
+        padding: 15px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        box-sizing: border-box;
+        width: 100%;
+        position: relative;
+    }
+    
+    /* 移动端顶部区域：分数和按钮横向排列 */
+    .top-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        max-width: min(90vw, 400px);
+        margin-bottom: 15px;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .scores {
+        display: flex;
+        gap: 10px;
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .score-container {
+        padding: 6px 10px;
+        min-width: 60px;
+        flex: 1;
+    }
+    
+    .score-label {
+        font-size: 11px;
+        margin-bottom: 1px;
+    }
+    
+    .score, .high-score {
+        font-size: 18px;
+        line-height: 1.1;
+    }
+    
+    .controls {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-shrink: 0;
+    }
+    
+    #restart-button {
+        padding: 8px 16px;
+        font-size: 14px;
+        min-width: 80px;
+        height: 36px;
+        border-radius: 6px;
+    }
+    
+    #audio-toggle {
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+        border-radius: 6px;
+    }
+    
+    .game-container {
+        width: min(90vw, 400px);
+        height: min(90vw, 400px);
+        margin: 15px auto;
+        overflow: hidden;
+        position: relative;
+        box-sizing: border-box;
+        /* 确保容器尺寸精确且防止超出 */
+    }
+    
+    .grid-container {
+        width: 100%;
+        height: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+        position: relative;
+        overflow: hidden;
+        /* 防止tile超出边界 */
+    }
+    
+    .grid-row {
+        height: calc((min(90vw, 400px) - 16px) / 5 - 6.4px);
+        /* 精确计算：容器尺寸 - padding*2 - 间距 */
+    }
+    
+    .grid-row:not(:last-child) {
+        margin-bottom: 8px;
+    }
+    
+    .grid-cell {
+        width: calc((min(90vw, 400px) - 16px) / 5 - 6.4px);
+        height: calc((min(90vw, 400px) - 16px) / 5 - 6.4px);
+        border-radius: 6px;
+        /* 精确计算以防止超出边界 */
+    }
+    
+    .grid-cell:not(:last-child) {
+        margin-right: 8px;
+    }
+    
+    .tile {
+        width: calc((min(90vw, 400px) - 16px) / 5 - 6.4px) !important;
+        height: calc((min(90vw, 400px) - 16px) / 5 - 6.4px) !important;
+        font-size: calc(min(90vw, 400px) / 16) !important;
+        line-height: 1 !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+        border-radius: 6px !important;
+        z-index: 10 !important;
+        /* 确保 tile 不会超出边界 */
+    }
+    
+    .tile-128, .tile-256, .tile-512 {
+        font-size: calc(min(85vw, 432px) / 17) !important;
+    }
+    
+    .tile-1024, .tile-2048 {
+        font-size: calc(min(85vw, 432px) / 19) !important;
+    }
+}
+
+/* Additional mobile optimizations for very small screens */
+@media (max-width: 360px) {
+    .container {
+        padding: 15px;
+    }
+    
+    .game-container {
+        width: min(90vw, 360px);
+        height: min(90vw, 360px);
+        /* 保持与主要移动端样式一致的比例 */
+    }
+    
+    .score-box {
+        min-width: 75px;
+        padding: 6px 14px;
+    }
+    
+    .score-label {
+        font-size: 13px;
+    }
+    
+    .score, .high-score {
+        font-size: 18px;
+    }
+    
+    #restart-button, #audio-toggle {
+        padding: 8px 14px;
+        font-size: 15px;
+        min-height: 42px;
+    }
+}
+
+.tile:hover {
+    transform: scale(1.01);
+    transition: all 0.05s ease-out;
+}
+
+/* Tile colors */
+.tile-2 { background: #eee4da; color: #776e65; }
+.tile-4 { background: #ede0c8; color: #776e65; }
+.tile-8 { background: #f2b179; color: #f9f6f2; }
+.tile-16 { background: #f59563; color: #f9f6f2; }
+.tile-32 { background: #f67c5f; color: #f9f6f2; }
+.tile-64 { background: #f65e3b; color: #f9f6f2; }
+.tile-128 { background: #edcf72; color: #f9f6f2; }
+.tile-256 { background: #edcc61; color: #f9f6f2; }
+.tile-512 { background: #edc850; color: #f9f6f2; }
+.tile-1024 { background: #edc53f; color: #f9f6f2; }
+.tile-2048 { background: #edc22e; color: #f9f6f2; }
