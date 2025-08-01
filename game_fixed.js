@@ -88,7 +88,7 @@ function initDOMElements() {
         scoreElement: !!scoreElement,
         highScoreElement: !!highScoreElement,
         restartButton: !!restartButton,
-        audioToggleButton: !!audioToggleButton,
+        audioToggleButton: `<button id="audio-toggle" class="audio-off">🔇</button>`,
         voiceDisplay: !!voiceDisplay
     });
     
@@ -305,7 +305,7 @@ function updateAudioToggle() {
         audioToggleButton.title = 'Sound ON - Click to turn off';
         playBackgroundMusic(); // Start playing music when enabled
     } else {
-        audioToggleButton.textContent = '🔇';
+        audioToggleButton.textContent = '🔇'; // 关闭状态显示静音图标
         audioToggleButton.classList.remove('audio-on');
         audioToggleButton.classList.add('audio-off');
         audioToggleButton.title = 'Sound OFF - Click to turn on';
@@ -791,24 +791,26 @@ function startGame() {
     let touchEndX = 0;
     let touchEndY = 0;
     
-    // 使用document而非gameArea来确保触摸事件能被捕获
-    document.addEventListener('touchstart', function(e) {
-        console.log('Touch start detected');
-        touchStartX = e.touches[0].clientX;
-        touchStartY = e.touches[0].clientY;
-    }, false);
-    
-    document.addEventListener('touchmove', function(e) {
-        // 防止页面滚动
-        e.preventDefault();
-    }, { passive: false });
-    
-    document.addEventListener('touchend', function(e) {
-        console.log('Touch end detected');
-        touchEndX = e.changedTouches[0].clientX;
-        touchEndY = e.changedTouches[0].clientY;
-        handleSwipe();
-    }, false);
+    // 只在游戏区域监听触摸事件，避免按钮区域联动
+    if (gameContainer) {
+        gameContainer.addEventListener('touchstart', function(e) {
+            console.log('Touch start detected in game area');
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        }, false);
+        
+        gameContainer.addEventListener('touchmove', function(e) {
+            // 防止页面滚动
+            e.preventDefault();
+        }, { passive: false });
+        
+        gameContainer.addEventListener('touchend', function(e) {
+            console.log('Touch end detected in game area');
+            touchEndX = e.changedTouches[0].clientX;
+            touchEndY = e.changedTouches[0].clientY;
+            handleSwipe();
+        }, false);
+    }
     
     function handleSwipe() {
         const deltaX = touchEndX - touchStartX;

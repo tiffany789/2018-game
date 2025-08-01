@@ -525,30 +525,33 @@ body {
     
     /* 移动端分数栏和按钮布局 - 与Web端保持一致 */
     .scores {
-        display: flex;
-        gap: 12px;
+        flex-direction: row;
         justify-content: center;
+        align-items: center;
+        gap: 10px;
         margin-bottom: 15px;
         flex-wrap: nowrap; /* 防止换行 */
+        max-width: 100%;
     }
     
     .score-container {
-        background: rgba(119, 110, 101, 0.8);
+        background: rgba(119, 110, 101, 0.9); /* 与Web端一致 */
+        padding: 10px 20px; /* 与Web端一致 */
         border-radius: 6px;
-        padding: 8px 12px;
         text-align: center;
-        color: white;
-        min-width: 70px;
-        flex: 1;
-        max-width: 120px; /* 限制最大宽度防止过宽 */
+        min-width: 100px; /* 与Web端一致 */
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2); /* 与Web端一致 */
+        border: 1px solid rgba(255, 255, 255, 0.15); /* 与Web端一致 */
+        margin: 0 5px; /* 与Web端一致 */
     }
     
     .score-label {
-        font-size: 12px;
+        color: #f9f6f2; /* 与Web端一致 */
+        font-size: 16px; /* 与Web端一致 */
         font-weight: bold;
-        margin-bottom: 3px;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 1px;
+        margin-bottom: 4px; /* 与Web端一致 */
     }
     
     .score, .high-score {
@@ -635,11 +638,11 @@ body {
     }
     
     .tile-128, .tile-256, .tile-512 {
-        font-size: calc(min(85vw, 432px) / 18) !important; /* 调大字体 */
+        font-size: calc(min(85vw, 432px) / 17) !important;
     }
     
     .tile-1024, .tile-2048 {
-        font-size: calc(min(85vw, 432px) / 17) !important; /* 调大字体 */
+        font-size: calc(min(85vw, 432px) / 19) !important;
     }
 }
 
