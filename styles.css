@@ -427,117 +427,140 @@ body {
 .tile-1024 { background: #edc53f; color: #f9f6f2; font-size: 28px; }
 .tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 28px; }
 
-/* Mobile responsive design */
+/* Mobile responsive design - 保持与Web端一致的视觉风格 */
 @media (max-width: 768px) {
     body {
-        padding: 10px;
-        align-items: flex-start;
+        padding: 15px;
+        align-items: center;
         padding-top: 20px;
+        min-height: 100vh;
+        box-sizing: border-box;
     }
     
     .container {
         max-width: 100%;
-        padding: 10px;
-        margin: 0;
+        padding: 20px;
+        margin: 0 auto;
         width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
     
     .header {
-        margin-bottom: 15px;
+        margin-bottom: 20px;
+        width: 100%;
+        max-width: 450px;
     }
     
     .scores {
-        gap: 8px;
+        gap: 10px;
         flex-wrap: wrap;
+        justify-content: center;
     }
     
     .score-box {
-        min-width: 70px;
-        padding: 6px 12px;
+        min-width: 85px;
+        padding: 8px 18px;
+        font-size: 14px;
+    }
+    
+    .score, .high-score {
+        font-size: 20px;
     }
     
     .controls {
-        gap: 10px;
-        margin-top: 10px;
+        gap: 15px;
+        margin-top: 15px;
+        justify-content: center;
     }
     
     .game-container {
-        width: min(90vw, 400px);
-        height: min(90vw, 400px);
-        margin: 15px auto;
+        width: min(85vw, 432px);
+        height: min(85vw, 432px);
+        margin: 20px auto;
+        /* 保持与桌面端相同的尺寸比例 */
     }
     
     .grid-container {
         width: 100%;
         height: 100%;
-        padding: 6px;
+        padding: 8px;
+        /* 保持与桌面端相同的padding */
     }
     
     .grid-row {
-        height: calc((min(90vw, 400px) - 52px) / 5);
+        height: calc((min(85vw, 432px) - 48px) / 5);
+        /* 精确计算以保持5x5网格比例 */
     }
     
     .grid-row:not(:last-child) {
-        margin-bottom: 6px;
+        margin-bottom: 8px;
     }
     
     .grid-cell {
-        width: calc((min(90vw, 400px) - 52px) / 5);
-        height: calc((min(90vw, 400px) - 52px) / 5);
+        width: calc((min(85vw, 432px) - 48px) / 5);
+        height: calc((min(85vw, 432px) - 48px) / 5);
+        /* 保持与桌面端相同的76.8px比例 */
     }
     
     .grid-cell:not(:last-child) {
-        margin-right: 6px;
+        margin-right: 8px;
     }
     
     .tile {
-        width: calc((min(90vw, 400px) - 52px) / 5) !important;
-        height: calc((min(90vw, 400px) - 52px) / 5) !important;
-        font-size: calc(min(90vw, 400px) / 16) !important;
+        width: calc((min(85vw, 432px) - 48px) / 5) !important;
+        height: calc((min(85vw, 432px) - 48px) / 5) !important;
+        font-size: calc(min(85vw, 432px) / 15) !important;
         line-height: 1 !important;
+        /* 优化字体大小以保持可读性 */
     }
     
     .tile-128, .tile-256, .tile-512 {
-        font-size: calc(min(90vw, 400px) / 18) !important;
+        font-size: calc(min(85vw, 432px) / 17) !important;
     }
     
     .tile-1024, .tile-2048 {
-        font-size: calc(min(90vw, 400px) / 20) !important;
-    }
-    
-    .score {
-        font-size: 18px;
+        font-size: calc(min(85vw, 432px) / 19) !important;
     }
     
     #restart-button, #audio-toggle {
-        padding: 8px 12px;
-        font-size: 14px;
-        min-height: 40px;
+        padding: 10px 16px;
+        font-size: 16px;
+        min-height: 44px;
+        /* 保持与桌面端相同的按钮尺寸 */
     }
 }
 
 /* Additional mobile optimizations for very small screens */
 @media (max-width: 360px) {
     .container {
-        padding: 5px;
+        padding: 15px;
     }
     
     .game-container {
-        width: min(95vw, 350px);
-        height: min(95vw, 350px);
+        width: min(90vw, 360px);
+        height: min(90vw, 360px);
+        /* 保持与主要移动端样式一致的比例 */
     }
     
     .score-box {
-        min-width: 60px;
-        padding: 4px 8px;
+        min-width: 75px;
+        padding: 6px 14px;
     }
     
     .score-label {
-        font-size: 12px;
+        font-size: 13px;
     }
     
-    .score {
-        font-size: 16px;
+    .score, .high-score {
+        font-size: 18px;
+    }
+    
+    #restart-button, #audio-toggle {
+        padding: 8px 14px;
+        font-size: 15px;
+        min-height: 42px;
     }
 }
 
