@@ -427,24 +427,29 @@ body {
 .tile-1024 { background: #edc53f; color: #f9f6f2; font-size: 28px; }
 .tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 28px; }
 
-/* Mobile responsive design - 保持与Web端一致的视觉风格 */
+/* Mobile responsive design - 修复居中和边界问题 */
 @media (max-width: 768px) {
     body {
-        padding: 15px;
+        padding: 10px;
         align-items: center;
-        padding-top: 20px;
+        justify-content: center;
         min-height: 100vh;
         box-sizing: border-box;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
     }
     
     .container {
         max-width: 100%;
-        padding: 20px;
+        padding: 15px;
         margin: 0 auto;
         width: 100%;
         display: flex;
         flex-direction: column;
         align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
     }
     
     .header {
@@ -476,22 +481,27 @@ body {
     }
     
     .game-container {
-        width: min(85vw, 432px);
-        height: min(85vw, 432px);
-        margin: 20px auto;
-        /* 保持与桌面端相同的尺寸比例 */
+        width: min(90vw, 400px);
+        height: min(90vw, 400px);
+        margin: 15px auto;
+        overflow: hidden;
+        position: relative;
+        /* 确保容器尺寸精确且防止超出 */
     }
     
     .grid-container {
         width: 100%;
         height: 100%;
         padding: 8px;
-        /* 保持与桌面端相同的padding */
+        box-sizing: border-box;
+        position: relative;
+        overflow: hidden;
+        /* 防止tile超出边界 */
     }
     
     .grid-row {
-        height: calc((min(85vw, 432px) - 48px) / 5);
-        /* 精确计算以保持5x5网格比例 */
+        height: calc((min(90vw, 400px) - 16px) / 5 - 6.4px);
+        /* 精确计算：容器尺寸 - padding*2 - 间距 */
     }
     
     .grid-row:not(:last-child) {
@@ -499,9 +509,9 @@ body {
     }
     
     .grid-cell {
-        width: calc((min(85vw, 432px) - 48px) / 5);
-        height: calc((min(85vw, 432px) - 48px) / 5);
-        /* 保持与桌面端相同的76.8px比例 */
+        width: calc((min(90vw, 400px) - 16px) / 5 - 6.4px);
+        height: calc((min(90vw, 400px) - 16px) / 5 - 6.4px);
+        /* 精确计算以防止超出边界 */
     }
     
     .grid-cell:not(:last-child) {
@@ -509,11 +519,13 @@ body {
     }
     
     .tile {
-        width: calc((min(85vw, 432px) - 48px) / 5) !important;
-        height: calc((min(85vw, 432px) - 48px) / 5) !important;
-        font-size: calc(min(85vw, 432px) / 15) !important;
+        width: calc((min(90vw, 400px) - 16px) / 5 - 6.4px) !important;
+        height: calc((min(90vw, 400px) - 16px) / 5 - 6.4px) !important;
+        font-size: calc(min(90vw, 400px) / 16) !important;
         line-height: 1 !important;
-        /* 优化字体大小以保持可读性 */
+        max-width: 100% !important;
+        max-height: 100% !important;
+        /* 确保 tile 不会超出边界 */
     }
     
     .tile-128, .tile-256, .tile-512 {

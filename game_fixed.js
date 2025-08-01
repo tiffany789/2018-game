@@ -778,6 +778,57 @@ function startGame() {
     // Add event listeners
     document.addEventListener('keydown', handleKeyPress);
     
+    // Add touch event listeners for mobile
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchEndX = 0;
+    let touchEndY = 0;
+    
+    const gameArea = gameContainer || document.body;
+    
+    gameArea.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+        e.preventDefault();
+    }, { passive: false });
+    
+    gameArea.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        touchEndY = e.changedTouches[0].screenY;
+        handleSwipe();
+        e.preventDefault();
+    }, { passive: false });
+    
+    function handleSwipe() {
+        const deltaX = touchEndX - touchStartX;
+        const deltaY = touchEndY - touchStartY;
+        const minSwipeDistance = 30;
+        
+        if (Math.abs(deltaX) < minSwipeDistance && Math.abs(deltaY) < minSwipeDistance) {
+            return; // 滑动距离太短，忽略
+        }
+        
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+            // 水平滑动
+            if (deltaX > 0) {
+                console.log('Swipe right detected');
+                moveTiles('right');
+            } else {
+                console.log('Swipe left detected');
+                moveTiles('left');
+            }
+        } else {
+            // 垂直滑动
+            if (deltaY > 0) {
+                console.log('Swipe down detected');
+                moveTiles('down');
+            } else {
+                console.log('Swipe up detected');
+                moveTiles('up');
+            }
+        }
+    }
+    
     if (restartButton) {
         restartButton.addEventListener('click', () => {
             console.log('Restart button clicked');
