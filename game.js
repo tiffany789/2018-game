@@ -4,13 +4,55 @@ const gridContainer = document.querySelector('.grid-container');
 const scoreElement = document.querySelector('.score');
 const highScoreElement = document.querySelector('.high-score');
 const restartButton = document.getElementById('restart-button');
-const toggleHistoryBtn = document.getElementById('toggle-history');
-const historyContent = document.getElementById('history-content');
-const gamesPlayedElement = document.getElementById('games-played');
-const bestScoreDisplayElement = document.getElementById('best-score-display');
-const averageScoreElement = document.getElementById('average-score');
 
-const gridSize = 4;
+const gridSize = 5;
+
+// Audio system for sound effects
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+// Encouragement phrases for high scores
+const encouragementPhrases = [
+    'Great job!',
+    'Nice work!',
+    'Keep it up!',
+    'You\'ve got this!',
+    'Well done!',
+    'Awesome!',
+    'Perfect!',
+    'Excellent!',
+    'Keep going!',
+    'You\'re on fire!'
+];
+
+// Create merge sound effect
+function createMergeSound() {
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.1);
+    
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.1);
+}
+
+// Speak encouragement phrase
+function speakEncouragement() {
+    if ('speechSynthesis' in window) {
+        const phrase = encouragementPhrases[Math.floor(Math.random() * encouragementPhrases.length)];
+        const utterance = new SpeechSynthesisUtterance(phrase);
+        utterance.rate = 1.2;
+        utterance.pitch = 1.1;
+        utterance.volume = 0.7;
+        speechSynthesis.speak(utterance);
+    }
+}
 
 // Get responsive tile dimensions based on screen size
 function getTileDimensions() {
@@ -56,20 +98,12 @@ function initGame() {
     scoreElement.textContent = score;
     hasWon = false;
     
-    // Load game statistics first
-    loadGameStats();
-    
-    // Load high score from localStorage and sync all displays
+    // Load high score from localStorage
     const savedHighScore = localStorage.getItem('2048-high-score');
     if (savedHighScore) {
         const highScore = parseInt(savedHighScore);
         highScoreElement.textContent = highScore;
-        bestScoreDisplayElement.textContent = highScore;
-        gameStats.highScore = Math.max(gameStats.highScore, highScore);
     }
-    
-    // Update all displays
-    updateHistoryDisplay();
 
     updateBoard();
 }
@@ -268,6 +302,37 @@ function moveTiles(direction) {
                 score += filtered[i];
                 filtered[i + 1] = 0;
                 merged = true;
+                
+                // Play merge sound effect
+                try {
+                    createMergeSound();
+                } catch (e) {
+                    // Audio context might not be initialized yet
+                }
+                
+                // Check if this is the highest tile on the board and speak encouragement
+                if (filtered[i] >= 512) {
+                    // Find current max value on board
+                    let maxValue = 0;
+                    for (let r = 0; r < gridSize; r++) {
+                        for (let c = 0; c < gridSize; c++) {
+                            if (gameBoard[r][c] > maxValue) {
+                                maxValue = gameBoard[r][c];
+                            }
+                        }
+                    }
+                    
+                    // If this merge creates the new highest value, speak encouragement
+                    if (filtered[i] >= maxValue) {
+                        setTimeout(() => {
+                            try {
+                                speakEncouragement();
+                            } catch (e) {
+                                // Speech synthesis might not be available
+                            }
+                        }, 500);
+                    }
+                }
             }
         }
         

@@ -257,7 +257,7 @@ body {
     height: 440px;
     background: rgba(187, 173, 160, 0.4);
     border-radius: 6px;
-    padding: 10px;
+    padding: 8px;
     overflow: hidden;
     transform: translateZ(0);
     will-change: auto;
@@ -268,10 +268,10 @@ body {
 
 .grid-row {
     display: flex;
-    height: 97.5px;
+    height: 76.8px;
 }
 .grid-row:not(:last-child) {
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 .grid-row:last-child {
@@ -281,11 +281,11 @@ body {
 .grid-cell {
     background: rgba(238, 228, 218, 0.35);
     border-radius: 3px;
-    width: 97.5px;
-    height: 97.5px;
+    width: 76.8px;
+    height: 76.8px;
 }
 .grid-cell:not(:last-child) {
-    margin-right: 10px;
+    margin-right: 8px;
 }
 
 .grid-cell:last-child {
@@ -294,19 +294,19 @@ body {
 
 .tile {
     position: absolute;
-    width: 97.5px;
-    height: 97.5px;
+    width: 76.8px;
+    height: 76.8px;
     background: #eee4da;
     color: #776e65;
     border-radius: 3px;
-    font-size: 36px;
+    font-size: 28px;
     font-weight: bold;
     display: flex !important;
     justify-content: center !important;
     align-items: center !important;
     text-align: center !important;
-    line-height: 97.5px !important;
-    transition: transform 0.08s cubic-bezier(0.23, 1, 0.32, 1);
+    line-height: 76.8px !important;
+    transition: transform 0.03s cubic-bezier(0.23, 1, 0.32, 1);
     will-change: transform;
     backface-visibility: hidden;
     transform-style: preserve-3d;
@@ -399,53 +399,52 @@ body {
 
 @media (max-width: 380px) {
     .game-container {
-        width: 280px;
-        height: 280px;
+        width: 320px;
+        height: 320px;
     }
     
     .grid-container {
-        width: 280px;
-        height: 280px;
-        padding: 6px;
+        width: 320px;
+        height: 320px;
+        padding: 5px;
     }
     
     .grid-row {
-        height: 62px;
+        height: 58px;
     }
     
     .grid-row:not(:last-child) {
-        margin-bottom: 6px;
+        margin-bottom: 5px;
     }
     
     .grid-cell {
-        width: 62px;
-        height: 62px;
+        width: 58px;
+        height: 58px;
     }
     
     .grid-cell:not(:last-child) {
-        margin-right: 6px;
+        margin-right: 5px;
     }
     
     .tile {
-        width: 62px;
-        height: 62px;
-        font-size: 24px;
-        line-height: 62px !important;
+        width: 58px;
+        height: 58px;
+        font-size: 20px;
+        line-height: 58px !important;
     }
     
     .tile-128, .tile-256, .tile-512 {
-        font-size: 20px;
+        font-size: 16px;
     }
     
     .tile-1024, .tile-2048 {
-        font-size: 16px;
+        font-size: 14px;
     }
 }
 
 .tile:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    transition: all 0.2s ease-out;
+    transform: scale(1.01);
+    transition: all 0.05s ease-out;
 }
 
 /* Tile colors */
