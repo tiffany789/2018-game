@@ -383,62 +383,29 @@ function createTile(value, row, col) {
         tile.setAttribute('data-row', row);
         tile.setAttribute('data-col', col);
         
-        // 直接使用grid-cell的实际位置，确保100%精确对齐
-        const gridCells = document.querySelectorAll('.grid-cell');
-        const cellIndex = row * GRID_SIZE + col;
+        // 精确计算tile位置，确保100%对齐到grid-cell中央
+        const tileSize = 76.8; // 精确尺寸
+        const gap = 8; // 间距
+        const padding = 8; // 容器padding
         
-        let finalX = 8; // 默认padding值
-        let finalY = 8; // 默认padding值
+        // 使用精确的数学计算，确保像素级对齐
+        const finalX = padding + col * (tileSize + gap);
+        const finalY = padding + row * (tileSize + gap);
         
-        if (gridCells && gridCells[cellIndex]) {
-            // 直接使用grid-cell的实际offsetLeft和offsetTop
-            finalX = gridCells[cellIndex].offsetLeft;
-            finalY = gridCells[cellIndex].offsetTop;
-            console.log(`Using actual grid-cell position for [${row}, ${col}]: x=${finalX}, y=${finalY}`);
-        } else {
-            // 备用计算方法（精确计算，确保不超出边界）
-            const tileSize = 76.8; // 精确尺寸
-            const gap = 8;
-            const padding = 8;
-            finalX = padding + col * (tileSize + gap);
-            finalY = padding + row * (tileSize + gap);
-            console.log(`Fallback calculated position for [${row}, ${col}]: x=${finalX}, y=${finalY}`);
+        console.log(`Calculated precise position for [${row}, ${col}]: x=${finalX}, y=${finalY}`);
+        
+        // 验证位置是否在合理范围内
+        const maxX = padding + (GRID_SIZE - 1) * (tileSize + gap);
+        const maxY = padding + (GRID_SIZE - 1) * (tileSize + gap);
+        
+        if (finalX < padding || finalX > maxX || finalY < padding || finalY > maxY) {
+            console.warn(`Position out of bounds for [${row}, ${col}]: x=${finalX}, y=${finalY}`);
         }
         
-        // 边界检查：确保tile不会超出432x432容器
-        const containerWidth = 432;
-        const containerHeight = 432;
-        const tileWidth = 76.8;
-        const tileHeight = 76.8;
-        
-        // 检查右边界
-        if (finalX + tileWidth > containerWidth) {
-            finalX = containerWidth - tileWidth - 8; // 减去右padding
-            console.warn(`Tile [${row}, ${col}] X position clamped to avoid right boundary overflow: ${finalX}`);
-        }
-        
-        // 检查下边界
-        if (finalY + tileHeight > containerHeight) {
-            finalY = containerHeight - tileHeight - 8; // 减去下padding
-            console.warn(`Tile [${row}, ${col}] Y position clamped to avoid bottom boundary overflow: ${finalY}`);
-        }
-        
-        // 检查左边界
-        if (finalX < 8) {
-            finalX = 8; // 最小左padding
-            console.warn(`Tile [${row}, ${col}] X position clamped to avoid left boundary overflow: ${finalX}`);
-        }
-        
-        // 检查上边界
-        if (finalY < 8) {
-            finalY = 8; // 最小上padding
-            console.warn(`Tile [${row}, ${col}] Y position clamped to avoid top boundary overflow: ${finalY}`);
-        }
-        
-        // 设置最终位置
+        // 设置最终位置（已通过精确计算确保在边界内）
         const position = { x: finalX, y: finalY };
         
-        // 设置样式 - 使用精确的位置值
+        // 设置样式 - 使用精确的位置值和优化的视觉效果
         tile.style.cssText = `
             position: absolute !important;
             left: ${position.x}px !important;
@@ -447,15 +414,22 @@ function createTile(value, row, col) {
             height: 76.8px !important;
             background-color: ${getTileColor(value)} !important;
             color: ${value <= 4 ? '#776e65' : '#f9f6f2'} !important;
-            border-radius: 3px !important;
+            border-radius: 6px !important;
             font-size: 28px !important;
             font-weight: bold !important;
             display: flex !important;
             justify-content: center !important;
             align-items: center !important;
-            z-index: 100 !important;
-            transition: transform 0.15s ease !important;
+            text-align: center !important;
+            line-height: 1 !important;
+            z-index: 10 !important;
+            transition: transform 0.15s ease, opacity 0.15s ease !important;
             box-sizing: border-box !important;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15) !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            -webkit-font-smoothing: antialiased !important;
+            -moz-osx-font-smoothing: grayscale !important;
         `;
         
         // 添加到网格容器
@@ -778,52 +752,59 @@ function startGame() {
     // Add event listeners
     document.addEventListener('keydown', handleKeyPress);
     
-    // Add touch event listeners for mobile
+    // 全局触摸事件处理
     let touchStartX = 0;
     let touchStartY = 0;
     let touchEndX = 0;
     let touchEndY = 0;
     
-    const gameArea = gameContainer || document.body;
+    // 使用document而非gameArea来确保触摸事件能被捕获
+    document.addEventListener('touchstart', function(e) {
+        console.log('Touch start detected');
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+    }, false);
     
-    gameArea.addEventListener('touchstart', (e) => {
-        touchStartX = e.changedTouches[0].screenX;
-        touchStartY = e.changedTouches[0].screenY;
+    document.addEventListener('touchmove', function(e) {
+        // 防止页面滚动
         e.preventDefault();
     }, { passive: false });
     
-    gameArea.addEventListener('touchend', (e) => {
-        touchEndX = e.changedTouches[0].screenX;
-        touchEndY = e.changedTouches[0].screenY;
+    document.addEventListener('touchend', function(e) {
+        console.log('Touch end detected');
+        touchEndX = e.changedTouches[0].clientX;
+        touchEndY = e.changedTouches[0].clientY;
         handleSwipe();
-        e.preventDefault();
-    }, { passive: false });
+    }, false);
     
     function handleSwipe() {
         const deltaX = touchEndX - touchStartX;
         const deltaY = touchEndY - touchStartY;
         const minSwipeDistance = 30;
         
+        console.log(`Swipe detected: deltaX=${deltaX}, deltaY=${deltaY}`);
+        
         if (Math.abs(deltaX) < minSwipeDistance && Math.abs(deltaY) < minSwipeDistance) {
+            console.log('Swipe too short, ignoring');
             return; // 滑动距离太短，忽略
         }
         
         if (Math.abs(deltaX) > Math.abs(deltaY)) {
             // 水平滑动
             if (deltaX > 0) {
-                console.log('Swipe right detected');
+                console.log('Swipe RIGHT detected, moving tiles');
                 moveTiles('right');
             } else {
-                console.log('Swipe left detected');
+                console.log('Swipe LEFT detected, moving tiles');
                 moveTiles('left');
             }
         } else {
             // 垂直滑动
             if (deltaY > 0) {
-                console.log('Swipe down detected');
+                console.log('Swipe DOWN detected, moving tiles');
                 moveTiles('down');
             } else {
-                console.log('Swipe up detected');
+                console.log('Swipe UP detected, moving tiles');
                 moveTiles('up');
             }
         }

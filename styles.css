@@ -109,28 +109,33 @@ body {
 }
 
 .score-box {
-    background: rgba(119, 110, 101, 0.8);
-    padding: 8px 18px;
+    background: rgba(119, 110, 101, 0.9);
+    padding: 10px 20px;
     border-radius: 6px;
     text-align: center;
-    min-width: 85px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    min-width: 100px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    margin: 0 5px;
 }
 
 .score-label {
-    color: #eee4da;
-    font-size: 14px;
+    color: #f9f6f2;
+    font-size: 16px;
     font-weight: bold;
     text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
 }
 
 .score, .high-score {
-    font-size: 22px;
+    font-size: 24px;
     font-weight: bold;
     color: white;
-    margin-top: 2px;
+    margin-top: 0;
     transition: all 0.2s ease-in-out;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    line-height: 1.2;
 }
 
 .high-score.updated {
@@ -393,25 +398,27 @@ body {
     height: 76.8px;
     background: #eee4da;
     color: #776e65;
-    border-radius: 3px;
+    border-radius: 6px;
     font-size: 28px;
     font-weight: bold;
     display: flex !important;
     justify-content: center !important;
     align-items: center !important;
     line-height: 1 !important;
-    z-index: 1;
+    z-index: 10;
     transition: transform 0.15s ease, opacity 0.15s ease;
     will-change: transform, opacity;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
-    /* Ensure tiles are properly sized for 5x5 grid */
     box-sizing: border-box;
     transform: translateZ(0);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     contain: layout style paint;
+    text-align: center;
+    margin: 0;
+    padding: 0;
 }
 
 /* Different tile colors */
@@ -486,6 +493,7 @@ body {
         margin: 15px auto;
         overflow: hidden;
         position: relative;
+        box-sizing: border-box;
         /* 确保容器尺寸精确且防止超出 */
     }
     
@@ -511,6 +519,7 @@ body {
     .grid-cell {
         width: calc((min(90vw, 400px) - 16px) / 5 - 6.4px);
         height: calc((min(90vw, 400px) - 16px) / 5 - 6.4px);
+        border-radius: 6px;
         /* 精确计算以防止超出边界 */
     }
     
@@ -525,6 +534,8 @@ body {
         line-height: 1 !important;
         max-width: 100% !important;
         max-height: 100% !important;
+        border-radius: 6px !important;
+        z-index: 10 !important;
         /* 确保 tile 不会超出边界 */
     }
     
