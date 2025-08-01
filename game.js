@@ -120,35 +120,55 @@ function addRandomTile() {
     return true;
 }
 
-// Update the visual board
+// Update the visual board with ultra-smooth rendering
 function updateBoard() {
-    // Use double requestAnimationFrame for ultra-smooth rendering
+    // Use triple requestAnimationFrame for maximum smoothness
     requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-            // Batch DOM operations for better performance
-            const fragment = document.createDocumentFragment();
-            
-            // Clear existing tiles efficiently
-            const tiles = document.querySelectorAll('.tile');
-            tiles.forEach(tile => {
-                tile.style.opacity = '0';
-                setTimeout(() => tile.remove(), 50);
-            });
-
-            // Create new tiles with optimized rendering
-            gameBoard.forEach((row, rowIndex) => {
-                row.forEach((value, colIndex) => {
-                    if (value !== 0) {
-                        const tile = createTile(value, rowIndex, colIndex);
-                        if (tile) {
-                            // Ensure tile is rendered smoothly
-                            tile.style.opacity = '0';
-                            setTimeout(() => {
-                                tile.style.opacity = '1';
-                            }, 10);
-                        }
-                    }
+            requestAnimationFrame(() => {
+                // Get existing tiles for smooth transition
+                const existingTiles = document.querySelectorAll('.tile');
+                const existingPositions = new Map();
+                
+                // Record existing tile positions
+                existingTiles.forEach(tile => {
+                    const value = tile.textContent;
+                    const rect = tile.getBoundingClientRect();
+                    existingPositions.set(value, { x: rect.left, y: rect.top, element: tile });
                 });
+
+                // Fade out existing tiles smoothly
+                existingTiles.forEach(tile => {
+                    tile.style.transition = 'opacity 0.05s ease-out';
+                    tile.style.opacity = '0';
+                });
+
+                // Remove old tiles after fade
+                setTimeout(() => {
+                    existingTiles.forEach(tile => tile.remove());
+                }, 60);
+
+                // Create new tiles with smooth appearance
+                setTimeout(() => {
+                    gameBoard.forEach((row, rowIndex) => {
+                        row.forEach((value, colIndex) => {
+                            if (value !== 0) {
+                                const tile = createTile(value, rowIndex, colIndex);
+                                if (tile) {
+                                    // Ultra-smooth appearance
+                                    tile.style.opacity = '0';
+                                    tile.style.transform = 'scale(0.95) translateZ(0)';
+                                    
+                                    requestAnimationFrame(() => {
+                                        tile.style.transition = 'all 0.08s cubic-bezier(0.23, 1, 0.32, 1)';
+                                        tile.style.opacity = '1';
+                                        tile.style.transform = 'scale(1) translateZ(0)';
+                                    });
+                                }
+                            }
+                        });
+                    });
+                }, 30);
             });
         });
     });
@@ -209,6 +229,34 @@ function createTile(value, row, col, direction = null) {
         }, 10);
     }
 
+    // Add ultra-smooth merge animation for combined tiles
+    if (merged) {
+        // Use requestAnimationFrame for smooth merge feedback
+        requestAnimationFrame(() => {
+            const mergedTiles = document.querySelectorAll('.tile');
+            mergedTiles.forEach(tile => {
+                const value = parseInt(tile.textContent);
+                if (value > 2) {
+                    // Apply subtle merge effect
+                    tile.style.transition = 'transform 0.06s cubic-bezier(0.23, 1, 0.32, 1)';
+                    tile.style.transform = 'scale(1.03) translateZ(0)';
+                    tile.style.zIndex = '10';
+                    
+                    // Return to normal smoothly
+                    setTimeout(() => {
+                        tile.style.transform = 'scale(1) translateZ(0)';
+                        tile.style.zIndex = '1';
+                    }, 60);
+                    
+                    // Clean up transition
+                    setTimeout(() => {
+                        tile.style.transition = '';
+                    }, 120);
+                }
+            });
+        });
+    }
+
     // Add merge animation if value is doubled
     if (value > 2 && value <= 2048) {
         setTimeout(() => {
@@ -254,8 +302,14 @@ function moveTiles(direction) {
                             // Update high score if needed
                             const currentHighScore = parseInt(highScoreElement.textContent) || 0;
                             if (score > currentHighScore) {
+                                // Update both high score displays
                                 highScoreElement.textContent = score;
+                                bestScoreDisplayElement.textContent = score;
+                                
+                                // Update game stats
+                                gameStats.highScore = score;
                                 localStorage.setItem('2048-high-score', score.toString());
+                                saveGameStats();
                                 
                                 // Add visual feedback
                                 highScoreElement.classList.add('updated');
