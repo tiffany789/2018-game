@@ -254,119 +254,87 @@ function moveTiles(direction) {
     // Create temporary board for movement
     const tempBoard = JSON.parse(JSON.stringify(gameBoard));
     
-    // Track which tiles have already merged to prevent double merging
-    const mergedTiles = Array(gridSize).fill().map(() => Array(gridSize).fill(false));
+    // Helper function to move and merge a line
+    function processLine(line) {
+        // Remove zeros
+        const filtered = line.filter(val => val !== 0);
+        const missing = gridSize - filtered.length;
+        const zeros = Array(missing).fill(0);
+        
+        // Merge adjacent equal values
+        for (let i = 0; i < filtered.length - 1; i++) {
+            if (filtered[i] === filtered[i + 1]) {
+                filtered[i] *= 2;
+                score += filtered[i];
+                filtered[i + 1] = 0;
+                merged = true;
+            }
+        }
+        
+        // Remove zeros again after merging
+        const afterMerge = filtered.filter(val => val !== 0);
+        const finalMissing = gridSize - afterMerge.length;
+        const finalZeros = Array(finalMissing).fill(0);
+        
+        return afterMerge.concat(finalZeros);
+    }
     
     // Move tiles based on direction
     switch(direction) {
         case 'up':
             for (let col = 0; col < gridSize; col++) {
-                let writePos = 0;
+                const column = [];
                 for (let row = 0; row < gridSize; row++) {
-                    if (tempBoard[row][col] !== 0) {
-                        if (writePos > 0 && tempBoard[writePos - 1][col] === tempBoard[row][col] && !mergedTiles[writePos - 1][col]) {
-                            // Merge with previous tile
-                            tempBoard[writePos - 1][col] *= 2;
-                            tempBoard[row][col] = 0;
-                            const points = tempBoard[writePos - 1][col];
-                            score += points;
-                            mergedTiles[writePos - 1][col] = true;
-                            merged = true;
-                            moved = true;
-                            
-                            // Update score display (high score will be updated at end of moveTiles)
-                            scoreElement.textContent = score;
-                        } else {
-                            // Move tile to write position
-                            if (writePos !== row) {
-                                tempBoard[writePos][col] = tempBoard[row][col];
-                                tempBoard[row][col] = 0;
-                                moved = true;
-                            }
-                            writePos++;
-                        }
+                    column.push(tempBoard[row][col]);
+                }
+                const newColumn = processLine(column);
+                for (let row = 0; row < gridSize; row++) {
+                    if (tempBoard[row][col] !== newColumn[row]) {
+                        moved = true;
                     }
+                    tempBoard[row][col] = newColumn[row];
                 }
             }
             break;
             
         case 'down':
             for (let col = 0; col < gridSize; col++) {
-                let writePos = gridSize - 1;
-                for (let row = gridSize - 1; row >= 0; row--) {
-                    if (tempBoard[row][col] !== 0) {
-                        if (writePos < gridSize - 1 && tempBoard[writePos + 1][col] === tempBoard[row][col] && !mergedTiles[writePos + 1][col]) {
-                            // Merge with previous tile
-                            tempBoard[writePos + 1][col] *= 2;
-                            tempBoard[row][col] = 0;
-                            score += tempBoard[writePos + 1][col];
-                            mergedTiles[writePos + 1][col] = true;
-                            merged = true;
-                            moved = true;
-                        } else {
-                            // Move tile to write position
-                            if (writePos !== row) {
-                                tempBoard[writePos][col] = tempBoard[row][col];
-                                tempBoard[row][col] = 0;
-                                moved = true;
-                            }
-                            writePos--;
-                        }
+                const column = [];
+                for (let row = 0; row < gridSize; row++) {
+                    column.push(tempBoard[row][col]);
+                }
+                const newColumn = processLine(column.reverse()).reverse();
+                for (let row = 0; row < gridSize; row++) {
+                    if (tempBoard[row][col] !== newColumn[row]) {
+                        moved = true;
                     }
+                    tempBoard[row][col] = newColumn[row];
                 }
             }
             break;
             
         case 'left':
             for (let row = 0; row < gridSize; row++) {
-                let writePos = 0;
+                const rowData = tempBoard[row].slice();
+                const newRow = processLine(rowData);
                 for (let col = 0; col < gridSize; col++) {
-                    if (tempBoard[row][col] !== 0) {
-                        if (writePos > 0 && tempBoard[row][writePos - 1] === tempBoard[row][col] && !mergedTiles[row][writePos - 1]) {
-                            // Merge with previous tile
-                            tempBoard[row][writePos - 1] *= 2;
-                            tempBoard[row][col] = 0;
-                            score += tempBoard[row][writePos - 1];
-                            mergedTiles[row][writePos - 1] = true;
-                            merged = true;
-                            moved = true;
-                        } else {
-                            // Move tile to write position
-                            if (writePos !== col) {
-                                tempBoard[row][writePos] = tempBoard[row][col];
-                                tempBoard[row][col] = 0;
-                                moved = true;
-                            }
-                            writePos++;
-                        }
+                    if (tempBoard[row][col] !== newRow[col]) {
+                        moved = true;
                     }
+                    tempBoard[row][col] = newRow[col];
                 }
             }
             break;
             
         case 'right':
             for (let row = 0; row < gridSize; row++) {
-                let writePos = gridSize - 1;
-                for (let col = gridSize - 1; col >= 0; col--) {
-                    if (tempBoard[row][col] !== 0) {
-                        if (writePos < gridSize - 1 && tempBoard[row][writePos + 1] === tempBoard[row][col] && !mergedTiles[row][writePos + 1]) {
-                            // Merge with previous tile
-                            tempBoard[row][writePos + 1] *= 2;
-                            tempBoard[row][col] = 0;
-                            score += tempBoard[row][writePos + 1];
-                            mergedTiles[row][writePos + 1] = true;
-                            merged = true;
-                            moved = true;
-                        } else {
-                            // Move tile to write position
-                            if (writePos !== col) {
-                                tempBoard[row][writePos] = tempBoard[row][col];
-                                tempBoard[row][col] = 0;
-                                moved = true;
-                            }
-                            writePos--;
-                        }
+                const rowData = tempBoard[row].slice();
+                const newRow = processLine(rowData.reverse()).reverse();
+                for (let col = 0; col < gridSize; col++) {
+                    if (tempBoard[row][col] !== newRow[col]) {
+                        moved = true;
                     }
+                    tempBoard[row][col] = newRow[col];
                 }
             }
             break;
