@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>2048 Game V2.0 Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-info { background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .debug-output { background: #000; color: #0f0; padding: 10px; font-family: monospace; height: 200px; overflow-y: scroll; }
+    </style>
+</head>
+<body>
+    <h1>2048 Game V2.0 Debug Test</h1>
+    
+    <div class="test-info">
+        <h3>测试目标：</h3>
+        <ul>
+            <li>验证5x5网格正确显示</li>
+            <li>验证滑动操作产生新数字</li>
+            <li>验证合并逻辑正确</li>
+            <li>验证调试日志输出</li>
+        </ul>
+    </div>
+    
+    <div class="test-info">
+        <h3>操作说明：</h3>
+        <p>使用方向键或WASD键进行滑动操作，观察控制台输出和游戏状态变化</p>
+    </div>
+    
+    <div class="debug-output" id="debugOutput">
+        <div>Debug输出将显示在这里...</div>
+    </div>
+    
+    <iframe src="index.html" width="100%" height="600px" style="border: 1px solid #ccc; margin-top: 20px;"></iframe>
+    
+    <script>
+        // 捕获iframe中的console输出
+        const debugOutput = document.getElementById('debugOutput');
+        
+        // 重写console.log来显示调试信息
+        const originalLog = console.log;
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            const logEntry = document.createElement('div');
+            logEntry.textContent = new Date().toLocaleTimeString() + ': ' + args.join(' ');
+            debugOutput.appendChild(logEntry);
+            debugOutput.scrollTop = debugOutput.scrollHeight;
+        };
+        
+        // 添加测试按钮
+        const testButtons = document.createElement('div');
+        testButtons.innerHTML = `
+            <button onclick="testGridSize()">测试网格尺寸</button>
+            <button onclick="testMovement()">测试滑动</button>
+            <button onclick="clearDebug()">清空调试</button>
+        `;
+        document.body.insertBefore(testButtons, debugOutput);
+        
+        function testGridSize() {
+            console.log('=== 网格尺寸测试 ===');
+            const iframe = document.querySelector('iframe');
+            if (iframe.contentWindow) {
+                const gridRows = iframe.contentDocument.querySelectorAll('.grid-row');
+                console.log('网格行数:', gridRows.length);
+                gridRows.forEach((row, i) => {
+                    const cells = row.querySelectorAll('.grid-cell');
+                    console.log(`第${i+1}行单元格数:`, cells.length);
+                });
+            }
+        }
+        
+        function testMovement() {
+            console.log('=== 滑动测试 ===');
+            console.log('请使用方向键进行滑动测试');
+        }
+        
+        function clearDebug() {
+            debugOutput.innerHTML = '<div>Debug输出已清空...</div>';
+        }
+    </script>
+</body>
+</html>

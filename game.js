@@ -8,7 +8,20 @@ const restartButton = document.getElementById('restart-button');
 const gridSize = 5;
 
 // Audio system for sound effects
-const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+let audioContext = null;
+
+// Initialize audio context on first user interaction
+function initAudioContext() {
+    if (!audioContext) {
+        try {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            console.log('Audio context initialized successfully');
+        } catch (e) {
+            console.warn('Failed to initialize audio context:', e);
+        }
+    }
+    return audioContext;
+}
 
 // Encouragement phrases for high scores
 const encouragementPhrases = [
@@ -26,20 +39,30 @@ const encouragementPhrases = [
 
 // Create merge sound effect
 function createMergeSound() {
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
+    const context = initAudioContext();
+    if (!context) {
+        console.warn('Audio context not available for merge sound');
+        return;
+    }
     
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-    oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.1);
-    
-    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-    
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.1);
+    try {
+        const oscillator = context.createOscillator();
+        const gainNode = context.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(context.destination);
+        
+        oscillator.frequency.setValueAtTime(800, context.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(400, context.currentTime + 0.1);
+        
+        gainNode.gain.setValueAtTime(0.3, context.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.1);
+        
+        oscillator.start(context.currentTime);
+        oscillator.stop(context.currentTime + 0.1);
+    } catch (e) {
+        console.warn('Failed to create merge sound:', e);
+    }
 }
 
 // Speak encouragement phrase
@@ -57,25 +80,33 @@ function speakEncouragement() {
 // Get responsive tile dimensions based on screen size
 function getTileDimensions() {
     const screenWidth = window.innerWidth;
+    console.log(`Getting tile dimensions for screen width: ${screenWidth}px`);
     
+    // Calculate dimensions based on grid size (5x5)
     if (screenWidth <= 380) {
-        return {
+        const dimensions = {
+            tileWidth: 58,
+            tileGap: 5,
+            containerPadding: 5
+        };
+        console.log('Using small screen dimensions:', dimensions);
+        return dimensions;
+    } else if (screenWidth <= 520) {
+        const dimensions = {
             tileWidth: 62,
             tileGap: 6,
             containerPadding: 6
         };
-    } else if (screenWidth <= 520) {
-        return {
-            tileWidth: 70,
+        console.log('Using medium screen dimensions:', dimensions);
+        return dimensions;
+    } else {
+        const dimensions = {
+            tileWidth: 76.8,
             tileGap: 8,
             containerPadding: 8
         };
-    } else {
-        return {
-            tileWidth: 97.5,
-            tileGap: 10,
-            containerPadding: 10
-        };
+        console.log('Using large screen dimensions:', dimensions);
+        return dimensions;
     }
 }
 
@@ -90,9 +121,21 @@ let gameStats = {
 
 // Initialize game
 function initGame() {
+    console.log(`Initializing game with gridSize: ${gridSize}x${gridSize}`);
     gameBoard = Array(gridSize).fill().map(() => Array(gridSize).fill(0));
-    addRandomTile();
-    addRandomTile();
+    
+    // Verify gameBoard dimensions
+    console.log(`gameBoard dimensions: ${gameBoard.length}x${gameBoard[0].length}`);
+    console.log('Initial gameBoard state:', JSON.stringify(gameBoard));
+    
+    // Add initial tiles
+    console.log('Adding initial random tiles');
+    const firstTile = addRandomTile();
+    console.log('First initial tile added:', firstTile);
+    const secondTile = addRandomTile();
+    console.log('Second initial tile added:', secondTile);
+    
+    console.log('gameBoard after adding initial tiles:', JSON.stringify(gameBoard));
     
     score = 0;
     scoreElement.textContent = score;
@@ -103,6 +146,16 @@ function initGame() {
     if (savedHighScore) {
         const highScore = parseInt(savedHighScore);
         highScoreElement.textContent = highScore;
+        console.log(`Loaded high score from localStorage: ${highScore}`);
+    }
+
+    // Verify grid container structure
+    const gridRows = gridContainer.querySelectorAll('.grid-row');
+    console.log(`Grid container has ${gridRows.length} rows`);
+    
+    for (let i = 0; i < gridRows.length; i++) {
+        const cells = gridRows[i].querySelectorAll('.grid-cell');
+        console.log(`Row ${i} has ${cells.length} cells`);
     }
 
     updateBoard();
@@ -142,8 +195,19 @@ function recordGameCompletion() {
 
 // Add a random tile (2 or 4) to an empty cell
 function addRandomTile() {
+    // Verify gameBoard is properly initialized
+    if (!gameBoard || !Array.isArray(gameBoard) || gameBoard.length !== gridSize) {
+        console.error('Invalid gameBoard structure:', gameBoard);
+        return false;
+    }
+    
     const emptyCells = [];
     for (let i = 0; i < gridSize; i++) {
+        if (!Array.isArray(gameBoard[i]) || gameBoard[i].length !== gridSize) {
+            console.error(`Invalid row at index ${i}:`, gameBoard[i]);
+            continue;
+        }
+        
         for (let j = 0; j < gridSize; j++) {
             if (gameBoard[i][j] === 0) {
                 emptyCells.push({ row: i, col: j });
@@ -151,21 +215,41 @@ function addRandomTile() {
         }
     }
 
-    if (emptyCells.length === 0) return false;
+    console.log(`Found ${emptyCells.length} empty cells for new tile`);
+    
+    if (emptyCells.length === 0) {
+        console.log('No empty cells available for new tile');
+        return false;
+    }
 
     const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-    gameBoard[randomCell.row][randomCell.col] = Math.random() < 0.9 ? 2 : 4;
+    const newValue = Math.random() < 0.9 ? 2 : 4;
+    console.log(`Adding new tile with value ${newValue} at position [${randomCell.row}, ${randomCell.col}]`);
+    
+    // Update the gameBoard with the new tile
+    gameBoard[randomCell.row][randomCell.col] = newValue;
+    
+    // Verify the tile was added correctly
+    if (gameBoard[randomCell.row][randomCell.col] !== newValue) {
+        console.error('Failed to add new tile to gameBoard!');
+        return false;
+    }
+    
+    console.log('New gameBoard state after adding tile:', JSON.stringify(gameBoard));
     return true;
 }
 
 // Update the visual board with ultra-smooth rendering
 function updateBoard() {
+    console.log('Updating board with current gameBoard state:', JSON.stringify(gameBoard));
+    
     // Use triple requestAnimationFrame for maximum smoothness
     requestAnimationFrame(() => {
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
                 // Get existing tiles for smooth transition
                 const existingTiles = document.querySelectorAll('.tile');
+                console.log(`Found ${existingTiles.length} existing tiles on the board`);
                 const existingPositions = new Map();
                 
                 // Record existing tile positions
@@ -184,13 +268,19 @@ function updateBoard() {
                 // Remove old tiles after fade
                 setTimeout(() => {
                     existingTiles.forEach(tile => tile.remove());
+                    console.log('Removed old tiles');
                 }, 60);
 
                 // Create new tiles with smooth appearance
                 setTimeout(() => {
+                    console.log('Creating new tiles based on gameBoard state');
+                    let tileCount = 0;
+                    
                     gameBoard.forEach((row, rowIndex) => {
                         row.forEach((value, colIndex) => {
                             if (value !== 0) {
+                                console.log(`Creating tile with value ${value} at position [${rowIndex}, ${colIndex}]`);
+                                tileCount++;
                                 const tile = createTile(value, rowIndex, colIndex);
                                 if (tile) {
                                     // Ultra-smooth appearance
@@ -202,10 +292,13 @@ function updateBoard() {
                                         tile.style.opacity = '1';
                                         tile.style.transform = 'scale(1) translateZ(0)';
                                     });
+                                } else {
+                                    console.error(`Failed to create tile at [${rowIndex}, ${colIndex}]`);
                                 }
                             }
                         });
                     });
+                    console.log(`Created ${tileCount} new tiles`);
                 }, 30);
             });
         });
@@ -214,6 +307,7 @@ function updateBoard() {
 
 // Create a tile element with animation
 function createTile(value, row, col, direction = null) {
+    console.log(`Creating tile with value ${value} at row ${row}, col ${col}`);
     const tile = document.createElement('div');
     tile.className = `tile tile-${value}`;
     tile.textContent = value;
@@ -237,8 +331,14 @@ function createTile(value, row, col, direction = null) {
             tile.style.top = y + 'px';
             tile.style.transform = 'none';
             positioned = true;
+            console.log(`Positioned tile at [${row}, ${col}] using cell coordinates: x=${x}, y=${y}`);
+        } else {
+            console.error(`No cell found at row ${row}, col ${col}`);
         }
+    } else {
+        console.error(`No row found at index ${row}`);
     }
+    
     if (!positioned) {
         // fallback: 数学定位，保证tile不会丢失
         const dimensions = getTileDimensions();
@@ -249,7 +349,9 @@ function createTile(value, row, col, direction = null) {
         tile.style.left = x + 'px';
         tile.style.top = y + 'px';
         tile.style.transform = 'none';
+        console.log(`Fallback positioning for tile at [${row}, ${col}]: x=${x}, y=${y}`);
     }
+    
     tile.style.display = 'block'; // 防止被隐藏
     gridContainer.appendChild(tile);
 
@@ -267,8 +369,6 @@ function createTile(value, row, col, direction = null) {
         }, 10);
     }
 
-
-
     // Add merge animation if value is doubled
     if (value > 2 && value <= 2048) {
         setTimeout(() => {
@@ -278,36 +378,54 @@ function createTile(value, row, col, direction = null) {
             }, 200);
         }, 100);
     }
+    
+    return tile; // Return the created tile element
 }
 
 // Handle tile movement
 function moveTiles(direction) {
+    console.log('=== moveTiles called with direction:', direction, '===');
+    console.log('Current gameBoard state:', JSON.stringify(gameBoard));
+    
     let moved = false;
     let merged = false;
     
     // Create temporary board for movement
     const tempBoard = JSON.parse(JSON.stringify(gameBoard));
+    console.log('Created temporary board for movement calculations');
     
     // Helper function to move and merge a line
     function processLine(line) {
+        console.log('Processing line:', JSON.stringify(line));
+        
         // Remove zeros
         const filtered = line.filter(val => val !== 0);
+        console.log('After removing zeros:', JSON.stringify(filtered));
+        
         const missing = gridSize - filtered.length;
         const zeros = Array(missing).fill(0);
         
+        // Check if any movement will occur (non-zero tiles moving to new positions)
+        if (JSON.stringify(filtered.concat(zeros)) !== JSON.stringify(line)) {
+            moved = true;
+            console.log('Movement detected in this line');
+        }
+        
         // Merge adjacent equal values
         for (let i = 0; i < filtered.length - 1; i++) {
-            if (filtered[i] === filtered[i + 1]) {
+            if (filtered[i] === filtered[i + 1] && filtered[i] !== 0) {
+                console.log(`Merging ${filtered[i]} with ${filtered[i+1]} at position ${i}`);
                 filtered[i] *= 2;
                 score += filtered[i];
                 filtered[i + 1] = 0;
                 merged = true;
+                moved = true; // Ensure moved is set to true when merging occurs
                 
                 // Play merge sound effect
                 try {
                     createMergeSound();
                 } catch (e) {
-                    // Audio context might not be initialized yet
+                    console.error('Failed to create merge sound:', e);
                 }
                 
                 // Check if this is the highest tile on the board and speak encouragement
@@ -328,7 +446,7 @@ function moveTiles(direction) {
                             try {
                                 speakEncouragement();
                             } catch (e) {
-                                // Speech synthesis might not be available
+                                console.error('Failed to speak encouragement:', e);
                             }
                         }, 500);
                     }
@@ -338,10 +456,14 @@ function moveTiles(direction) {
         
         // Remove zeros again after merging
         const afterMerge = filtered.filter(val => val !== 0);
+        console.log('After merging and removing zeros:', JSON.stringify(afterMerge));
+        
         const finalMissing = gridSize - afterMerge.length;
         const finalZeros = Array(finalMissing).fill(0);
         
-        return afterMerge.concat(finalZeros);
+        const result = afterMerge.concat(finalZeros);
+        console.log('Final processed line:', JSON.stringify(result));
+        return result;
     }
     
     // Move tiles based on direction
@@ -406,9 +528,17 @@ function moveTiles(direction) {
     }
     
     if (moved) {
-        gameBoard = tempBoard;
+        console.log('Tiles moved! Direction:', direction);
+        // Update the game board with the new state
+        gameBoard = JSON.parse(JSON.stringify(tempBoard)); // Deep copy to ensure no reference issues
+        console.log('Updated gameBoard after move:', JSON.stringify(gameBoard));
+        
+        // Update the visual board
         updateBoard();
+        
+        // Update score display
         scoreElement.textContent = score;
+        console.log('Updated score:', score);
         
         // Check and update high score after every move
         const currentHighScore = parseInt(highScoreElement.textContent) || 0;
@@ -431,9 +561,23 @@ function moveTiles(direction) {
         
         if (merged) {
             // Add new tile after merge animation
-            setTimeout(() => addRandomTile(), 200);
+            console.log('Merged tiles, adding new tile with delay');
+            setTimeout(() => {
+                const added = addRandomTile();
+                console.log('Added new tile after merge:', added);
+                if (added) {
+                    console.log('Updating board after adding new tile (merged)');
+                    updateBoard();
+                }
+            }, 200);
         } else {
-            addRandomTile();
+            console.log('No merges, adding new tile immediately');
+            const added = addRandomTile();
+            console.log('Added new tile:', added);
+            if (added) {
+                console.log('Updating board after adding new tile (no merge)');
+                updateBoard();
+            }
         }
         
         checkGameOver();
@@ -636,25 +780,57 @@ gridContainer.addEventListener('touchend', (e) => {
 }, { passive: false });
 
 function handleKeyPress(e) {
+    console.log('Key pressed:', e.key, 'Code:', e.code);
+    
+    // Prevent default behavior for arrow keys and WASD
+    const validKeys = ['arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'w', 'a', 's', 'd'];
+    if (validKeys.includes(e.key.toLowerCase())) {
+        e.preventDefault();
+        console.log('Valid game key detected, calling moveTiles');
+    }
+    
     switch(e.key.toLowerCase()) {
         case 'arrowup':
         case 'w':
+            console.log('Moving UP');
             moveTiles('up');
             break;
         case 'arrowdown':
         case 's':
+            console.log('Moving DOWN');
             moveTiles('down');
             break;
         case 'arrowleft':
         case 'a':
+            console.log('Moving LEFT');
             moveTiles('left');
             break;
         case 'arrowright':
         case 'd':
+            console.log('Moving RIGHT');
             moveTiles('right');
             break;
+        default:
+            console.log('Key not recognized for game movement');
     }
 }
 
-// Initialize game
-initGame();
+// Debug: Check if script is loading
+console.log('=== 2048 Game Script Loading ===');
+console.log('DOM elements found:');
+console.log('gameContainer:', gameContainer);
+console.log('gridContainer:', gridContainer);
+console.log('scoreElement:', scoreElement);
+console.log('highScoreElement:', highScoreElement);
+console.log('restartButton:', restartButton);
+
+// Wait for DOM to be fully loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM fully loaded, initializing game...');
+        initGame();
+    });
+} else {
+    console.log('DOM already loaded, initializing game immediately...');
+    initGame();
+}
