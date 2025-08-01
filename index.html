@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2048 Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="score-container">
+            <div class="scores">
+                <div class="score-box">
+                    <div class="score-label">SCORE</div>
+                    <div class="score">0</div>
+                </div>
+                <div class="score-box">
+                    <div class="score-label">BEST</div>
+                    <div class="high-score">0</div>
+                </div>
+            </div>
+            <button id="restart-button">New Game</button>
+        </div>
+        <div class="history-panel" id="history-panel">
+            <div class="history-header">
+                <span>历史记录</span>
+                <button id="toggle-history" class="toggle-btn">📊</button>
+            </div>
+            <div class="history-content" id="history-content">
+                <div class="history-item">
+                    <span class="history-label">游戏次数:</span>
+                    <span class="history-value" id="games-played">0</span>
+                </div>
+                <div class="history-item">
+                    <span class="history-label">最高分:</span>
+                    <span class="history-value" id="best-score-display">0</span>
+                </div>
+                <div class="history-item">
+                    <span class="history-label">平均分:</span>
+                    <span class="history-value" id="average-score">0</span>
+                </div>
+            </div>
+        </div>
+        <div class="game-container">
+            <div class="grid-container">
+                <div class="grid-row">
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                </div>
+                <div class="grid-row">
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                </div>
+                <div class="grid-row">
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                </div>
+                <div class="grid-row">
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
