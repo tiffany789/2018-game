@@ -375,24 +375,34 @@ function createTile(value, row, col) {
             console.log('Grid container found on retry');
         }
         
-        // 创建tile元素
-        const tile = document.createElement('div');
-        tile.className = `tile tile-${value}`;
-        tile.textContent = value;
-        tile.setAttribute('data-value', value);
-        tile.setAttribute('data-row', row);
-        tile.setAttribute('data-col', col);
+        // 动态计算tile位置，确保在所有设备上100%对齐到grid-cell中央
+        function getTileDimensions() {
+            // 检测是否为移动端
+            const isMobile = window.innerWidth <= 768;
+            
+            if (isMobile) {
+                // 移动端：使用与CSS相同的计算公式
+                const containerSize = Math.min(window.innerWidth * 0.9, 400);
+                const tileSize = (containerSize - 16) / 5 - 6.4; // 与CSS calc()完全一致
+                const gap = 8;
+                const padding = 8;
+                
+                console.log(`Mobile dimensions: containerSize=${containerSize}, tileSize=${tileSize}`);
+                return { tileSize, gap, padding, isMobile: true };
+            } else {
+                // 桌面端：使用固定尺寸
+                return { tileSize: 76.8, gap: 8, padding: 8, isMobile: false };
+            }
+        }
         
-        // 精确计算tile位置，确保100%对齐到grid-cell中央
-        const tileSize = 76.8; // 精确尺寸
-        const gap = 8; // 间距
-        const padding = 8; // 容器padding
+        const dimensions = getTileDimensions();
+        const { tileSize, gap, padding, isMobile } = dimensions;
         
-        // 使用精确的数学计算，确保像素级对齐
+        // 使用动态计算的尺寸进行精确定位
         const finalX = padding + col * (tileSize + gap);
         const finalY = padding + row * (tileSize + gap);
         
-        console.log(`Calculated precise position for [${row}, ${col}]: x=${finalX}, y=${finalY}`);
+        console.log(`Calculated position for [${row}, ${col}] with tileSize=${tileSize}: x=${finalX}, y=${finalY}`);
         
         // 验证位置是否在合理范围内
         const maxX = padding + (GRID_SIZE - 1) * (tileSize + gap);
@@ -402,20 +412,28 @@ function createTile(value, row, col) {
             console.warn(`Position out of bounds for [${row}, ${col}]: x=${finalX}, y=${finalY}`);
         }
         
-        // 设置最终位置（已通过精确计算确保在边界内）
-        const position = { x: finalX, y: finalY };
+        // 创建tile元素
+        const tile = document.createElement('div');
+        tile.className = `tile tile-${value}`;
+        tile.textContent = value;
+        tile.setAttribute('data-value', value);
+        tile.setAttribute('data-row', row);
+        tile.setAttribute('data-col', col);
+        
+        // 动态计算字体大小
+        const fontSize = isMobile ? Math.max(tileSize / 3, 16) : 28;
         
         // 设置样式 - 使用精确的位置值和优化的视觉效果
         tile.style.cssText = `
             position: absolute !important;
-            left: ${position.x}px !important;
-            top: ${position.y}px !important;
-            width: 76.8px !important;
-            height: 76.8px !important;
+            left: ${finalX}px !important;
+            top: ${finalY}px !important;
+            width: ${tileSize}px !important;
+            height: ${tileSize}px !important;
             background-color: ${getTileColor(value)} !important;
             color: ${value <= 4 ? '#776e65' : '#f9f6f2'} !important;
             border-radius: 6px !important;
-            font-size: 28px !important;
+            font-size: ${fontSize}px !important;
             font-weight: bold !important;
             display: flex !important;
             justify-content: center !important;
@@ -848,5 +866,3 @@ if (document.readyState === 'loading') {
 }
 
 console.log('=== 2048 Game Script Loaded ===');
-
-
