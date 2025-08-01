@@ -291,27 +291,34 @@ function showVoiceDisplay(text) {
     }, 3000);
 }
 
-// Toggle audio on/off
-function toggleAudio() {
-    audioEnabled = !audioEnabled;
+// Update audio toggle button display
+function updateAudioToggle() {
+    if (!audioToggleButton) {
+        console.warn('Audio toggle button not found');
+        return;
+    }
     
-    if (audioToggleButton) {
-        if (audioEnabled) {
-            audioToggleButton.textContent = '🔊';
-            audioToggleButton.classList.remove('audio-off');
-            audioToggleButton.classList.add('audio-on');
-            audioToggleButton.title = 'Sound ON - Click to turn off';
-            playBackgroundMusic(); // Start playing music when enabled
-        } else {
-            audioToggleButton.textContent = '🔇';
-            audioToggleButton.classList.remove('audio-on');
-            audioToggleButton.classList.add('audio-off');
-            audioToggleButton.title = 'Sound OFF - Click to turn on';
-            pauseBackgroundMusic(); // Pause music when disabled
-        }
+    if (audioEnabled) {
+        audioToggleButton.textContent = '🔊';
+        audioToggleButton.classList.remove('audio-off');
+        audioToggleButton.classList.add('audio-on');
+        audioToggleButton.title = 'Sound ON - Click to turn off';
+        playBackgroundMusic(); // Start playing music when enabled
+    } else {
+        audioToggleButton.textContent = '🔇';
+        audioToggleButton.classList.remove('audio-on');
+        audioToggleButton.classList.add('audio-off');
+        audioToggleButton.title = 'Sound OFF - Click to turn on';
+        pauseBackgroundMusic(); // Pause music when disabled
     }
     
     console.log(`Audio ${audioEnabled ? 'enabled' : 'disabled'}`);
+}
+
+// Toggle audio on/off
+function toggleAudio() {
+    audioEnabled = !audioEnabled;
+    updateAudioToggle();
 }
 
 // Add a random tile (2 or 4) to an empty cell
@@ -428,8 +435,8 @@ function createTile(value, row, col) {
         tile.setAttribute('data-row', row);
         tile.setAttribute('data-col', col);
         
-        // 动态计算字体大小
-        const fontSize = isMobile ? Math.max(tileSize / 3, 16) : 28;
+        // 动态计算字体大小 - 移动端调大数字
+        const fontSize = isMobile ? Math.max(tileSize / 2.5, 20) : 28; // 移动端字体更大
         
         // 设置样式 - 使用精确的位置值和优化的视觉效果
         tile.style.cssText = `
@@ -848,6 +855,9 @@ function startGame() {
             console.log('Audio toggle button clicked');
             toggleAudio();
         });
+        
+        // 初始化音频按钮状态
+        updateAudioToggle();
     }
     
     // 清除所有现有的tile

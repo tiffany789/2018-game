@@ -10,22 +10,20 @@
     <div class="container">
         <h1>2048</h1>
         
-        <!-- 移动端顶部区域：分数和按钮横向排列 -->
-        <div class="top-section">
-            <div class="scores">
-                <div class="score-container">
-                    <div class="score-label">SCORE</div>
-                    <div class="score">0</div>
-                </div>
-                <div class="score-container">
-                    <div class="score-label">BEST</div>
-                    <div class="high-score">0</div>
-                </div>
+        <div class="scores">
+            <div class="score-container">
+                <div class="score-label">SCORE</div>
+                <div class="score">0</div>
             </div>
-            <div class="controls">
-                <button id="audio-toggle" class="audio-on">🔊</button>
-                <button id="restart-button">New Game</button>
+            <div class="score-container">
+                <div class="score-label">BEST</div>
+                <div class="high-score">0</div>
             </div>
+        </div>
+        
+        <div class="controls">
+            <button id="audio-toggle" class="audio-off">🔇</button>
+            <button id="restart-button">New Game</button>
         </div>
         
         <div class="voice-display" id="voice-display"></div>

@@ -523,46 +523,48 @@ body {
         position: relative;
     }
     
-    /* 移动端顶部区域：分数和按钮横向排列 */
-    .top-section {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-        max-width: min(90vw, 400px);
-        margin-bottom: 15px;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-    
+    /* 移动端分数栏和按钮布局 - 与Web端保持一致 */
     .scores {
         display: flex;
-        gap: 10px;
-        flex: 1;
-        min-width: 0;
+        gap: 12px;
+        justify-content: center;
+        margin-bottom: 15px;
+        flex-wrap: nowrap; /* 防止换行 */
     }
     
     .score-container {
-        padding: 6px 10px;
-        min-width: 60px;
+        background: rgba(119, 110, 101, 0.8);
+        border-radius: 6px;
+        padding: 8px 12px;
+        text-align: center;
+        color: white;
+        min-width: 70px;
         flex: 1;
+        max-width: 120px; /* 限制最大宽度防止过宽 */
     }
     
     .score-label {
-        font-size: 11px;
-        margin-bottom: 1px;
+        font-size: 12px;
+        font-weight: bold;
+        margin-bottom: 3px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
     
     .score, .high-score {
-        font-size: 18px;
-        line-height: 1.1;
+        font-size: 20px;
+        font-weight: bold;
+        line-height: 1.2;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     }
     
     .controls {
         display: flex;
-        gap: 8px;
+        gap: 12px;
+        justify-content: center;
         align-items: center;
-        flex-shrink: 0;
+        margin-bottom: 15px;
+        flex-wrap: nowrap; /* 防止换行 */
     }
     
     #restart-button {
@@ -633,11 +635,11 @@ body {
     }
     
     .tile-128, .tile-256, .tile-512 {
-        font-size: calc(min(85vw, 432px) / 17) !important;
+        font-size: calc(min(85vw, 432px) / 18) !important; /* 调大字体 */
     }
     
     .tile-1024, .tile-2048 {
-        font-size: calc(min(85vw, 432px) / 19) !important;
+        font-size: calc(min(85vw, 432px) / 17) !important; /* 调大字体 */
     }
 }
 
